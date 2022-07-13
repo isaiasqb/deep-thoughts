@@ -12,14 +12,33 @@ import Profile from './pages/Profile';
 import Signup from './pages/Signup';
 
 import { ApolloProvider, ApolloClient, InMemoryCache, createHttpLink } from '@apollo/client';
+import { setContext } from '@apollo/client/link/context';
 
 // establish the connection to the back-end server's /graphql endpoint
 const httpLink = createHttpLink({
   uri: '/graphql',
 });
 
+//middleware function that will retrieve the token for us and combine it with the existing httpLink.
+  // we use the setContext() function to retrieve the token from localStorage 
+  // and set the HTTP request headers of every request to include the token,
+  // if the request doesn't need the token, our server-side resolver function won't check for it.
+const authLink = setContext((_, { headers }) => { 
+  //Because we're not using the first parameter, 
+  //but we still need to access the second one, we can use an underscore _ to serve as a placeholder.
+  const token = localStorage.getItem('id_token');
+  return {
+    headers: {
+      ...headers,
+      authorization: token ? `Bearer ${token}` : '',
+    },
+  };
+});
+
+// combine the authLink and httpLink objects so that every request retrieves the token 
+// and sets the request headers before making the request to the API. 
 const client = new ApolloClient({
-  link: httpLink,
+  link: authLink.concat(httpLink),
   cache: new InMemoryCache(),
 })
 
