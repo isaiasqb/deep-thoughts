@@ -7,6 +7,7 @@ import { Navigate, useParams } from 'react-router-dom';
 import ThoughtList from '../components/ThoughtList';
 import FriendList from '../components/FriendList';
 import Auth from '../utils/auth';
+import ThoughtForm from '../components/ThoughtForm';
 
 import { useQuery, useMutation } from '@apollo/client';
 import { QUERY_USER, QUERY_ME } from '../utils/queries';
@@ -86,6 +87,8 @@ const handleClick = async () => {
             />
         </div>
       </div>
+      {/* userParam variable to make sure the form only displays on the user's own Profile page, not on other users' pages */}
+      <div className="mb-3">{!userParam && <ThoughtForm />}</div>
     </div>
   );
 };
